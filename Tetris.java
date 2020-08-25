@@ -8,18 +8,19 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Tetris {
-    Board board;
-    ArrayList next;
-    Blocks nowBlock;
-    Blocks holdBlock;
-    int x,y,index;
-    int nextCount=5;
-    int holdCount=0;
-    int x0=3,y0=23;
+    Board board;//面板
+    ArrayList next;//next块的序列
+    Blocks nowBlock;//当前块
+    Blocks holdBlock;//hold块
+    int x,y,index;//xy坐标，index代表方向
+    int nextCount=5;//能看多少个next
+    int holdCount=0;//一个块被放下前只能hold一次
+    int x0=3,y0=23;//初始xy坐标
     Double speed=((double)1)/60; 
-    MainPanel mainPanel;
-    HoldPanel holdPanel;
-    NextPanel nextPanel;
+    MainPanel mainPanel;//游戏主画面，用来画board
+    HoldPanel holdPanel;//hold面板，用来画hold的块
+    NextPanel nextPanel;//next面板，用来画next序列
+    int lockTime=1000;//落下时的锁定时间
     Tetris(){
         board = new Board();
         next=new ArrayList<Blocks>();
@@ -40,41 +41,82 @@ public class Tetris {
         public void keyPressed(KeyEvent e) {
             // TODO Auto-generated method stub
             System.out.println(e.getKeyCode());
+            int[][] temp;
             switch(e.getKeyCode()){
                 case KeyEvent.VK_A:
+                    if(board.canBePutted(nowBlock, x-1, y, index)){
+                        --x;
+                        paintChanges();
+                    }
                     break;
                 case KeyEvent.VK_D:
+                    if(board.canBePutted(nowBlock, x+1, y, index)){
+                        ++x;
+                        paintChanges();
+                    }
                     break;
                 case KeyEvent.VK_W:
+                    while(board.canBePutted(nowBlock, x, y+1, index)){
+                        ++y;
+                    }
+                    changeBlock();
+                    paintChanges();
                     break;
                 case KeyEvent.VK_S:
                     break;
                 case KeyEvent.VK_SHIFT:
-                    if(holdBlock==null){
-                        holdBlock=nowBlock;
-                        nowBlock=(Blocks)next.get(0);
-                        next.remove(0);
+                    if(holdCount==0){
+                        if(holdBlock==null){
+                            holdBlock=nowBlock;
+                            nowBlock=(Blocks)next.get(0);
+                            next.remove(0);
+                            if(next.size()<=nextCount){
+                                creatBlocks();
+                            }
+                        }
+                        else{
+                            Blocks tempBlock=nowBlock;
+                            nowBlock=holdBlock;
+                            holdBlock=tempBlock;
+                        }
+                        x=x0;
+                        y=y0;
+                        index=0;
+                        ++holdCount;
+                        paintChanges();
                     }
-                    else{
-                        Blocks tempBlock=nowBlock;
-                        nowBlock=holdBlock;
-                        holdBlock=tempBlock;
-                    }
-                    x=x0;
-                    y=y0;
-                    mainPanel.board=board;
-                    mainPanel.nowBlock=nowBlock;
-                    mainPanel.block_x=x;
-                    mainPanel.block_y=y;
-                    holdPanel.block=holdBlock;
-                    nextPanel.next=next;
-                    mainPanel.repaint();
-                    nextPanel.repaint();
-                    holdPanel.repaint();
                     break;
                 case KeyEvent.VK_LEFT:
+                    if(nowBlock.equals(Blocks.I)){
+                        temp=SRS.iBlock[index][(index+3)%4];
+                    }
+                    else{
+                        temp=SRS.otherBlocks[index][(index+3)%4];
+                    }
+                    for(int i=0;i<5;++i){
+                        if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+3)%4)){
+                            index=(index+3)%4;
+                            x+=temp[i][0];
+                            y+=temp[i][1];
+                            paintChanges();
+                            break;
+                        }
+                    }
                     break;
                 case KeyEvent.VK_RIGHT:
+                    if(nowBlock.equals(Blocks.I)){
+                        temp=SRS.iBlock[index][(index+1)%4];
+                    }
+                    else{
+                        temp=SRS.otherBlocks[index][(index+1)%4];
+                    }
+                    for(int i=0;i<5;++i){
+                        if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+1)%4)){
+                            index=(index+1)%4;
+                            paintChanges();
+                            break;
+                        }
+                    }
                     break;
             }
 
@@ -110,13 +152,14 @@ public class Tetris {
     }
     //开始游戏
     public void play(){
-        //TODO
+        //GUI
         JFrame frame=new JFrame("Tetris");
+        KeyboardHandler kbHandler=new KeyboardHandler();
         mainPanel=new MainPanel(board,nowBlock,x,y,index);
         holdPanel=new HoldPanel(holdBlock);
         nextPanel=new NextPanel(next,nextCount);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.addKeyListener(new KeyboardHandler());
+        frame.addKeyListener(kbHandler);
         mainPanel.setSize(200, 400);
         holdPanel.setSize(80,80);
         nextPanel.setSize(80,400);
@@ -138,6 +181,7 @@ public class Tetris {
         frame.setSize(420, 440);
         frame.setResizable(false);
         frame.setVisible(true);
+        //主体
         while(true){
             try{
                 int sleepTime=(int)(1000*60*speed);
@@ -147,26 +191,47 @@ public class Tetris {
                 y++;
             }
             else{
-                board.addBlock(nowBlock, x, y, index);
-                nowBlock=(Blocks)next.get(0);
-                next.remove(0);
-                if(next.size()<=5)
-                creatBlocks();
-                x=x0;
-                y=y0;
-                if(!board.canBePutted(nowBlock, x, y, index)){
-                    break;
+                try{
+                    Thread.currentThread().sleep(lockTime);
+                }catch(Exception e){}
+                if(board.canBePutted(nowBlock, x, y+1, index)){
+                    y++;
+                }
+                else{
+                    changeBlock();
+                    if(!board.canBePutted(nowBlock, x, y, index)){
+                        frame.removeKeyListener(kbHandler);
+                        break;
+                    }
                 }
             }
-            mainPanel.board=board;
-            mainPanel.nowBlock=nowBlock;
-            mainPanel.block_x=x;
-            mainPanel.block_y=y;
-            holdPanel.block=holdBlock;
-            nextPanel.next=next;
-            mainPanel.repaint();
-            nextPanel.repaint();
-            holdPanel.repaint();
+            paintChanges();
         }
+    }
+    //画图函数
+    public void paintChanges(){
+        mainPanel.board=board;
+        mainPanel.nowBlock=nowBlock;
+        mainPanel.block_x=x;
+        mainPanel.block_y=y;
+        mainPanel.blockIndex=index;
+        holdPanel.block=holdBlock;
+        nextPanel.next=next;
+        mainPanel.repaint();
+        nextPanel.repaint();
+        holdPanel.repaint();
+    }
+    //换成下一块
+    public void changeBlock(){
+        board.addBlock(nowBlock, x, y, index);
+        nowBlock=(Blocks)next.get(0);
+        next.remove(0);
+        if(next.size()<=nextCount){
+            creatBlocks();
+        }
+        x=x0;
+        y=y0;
+        holdCount=0;
+        index=0;
     }
 }

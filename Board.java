@@ -33,18 +33,6 @@ public class Board {
         decreaseLines();
         return;
     }
-    //擦除块
-    public void eraseBlock(Blocks block,int x,int y,int index){
-        int[][] temp=((Block2Array.m.get(block))[index]);
-        for(int i=0;i<temp.length;++i){
-            for(int j=0;j<temp.length;++j){
-                if(!(x+i>=10||y+j>=44||x+i<0||y+j<0)){
-                    board[x+i][y+j]-=temp[j][i];
-                }
-            }
-        }
-        return;
-    }
     //消行
     private void decreaseLines(){
         for(int y=43;y>=0;--y){
