@@ -17,6 +17,8 @@ public class Tetris {
     int holdCount=0;//一个块被放下前只能hold一次
     int x0=3,y0=23;//初始xy坐标
     Double speed=((double)1)/60; 
+    JFrame frame=new JFrame("Tetris");
+    KeyboardHandler kbHandler=new KeyboardHandler();
     MainPanel mainPanel;//游戏主画面，用来画board
     HoldPanel holdPanel;//hold面板，用来画hold的块
     NextPanel nextPanel;//next面板，用来画next序列
@@ -60,6 +62,9 @@ public class Tetris {
                         ++y;
                     }
                     changeBlock();
+                    if(!board.canBePutted(nowBlock, x, y, index)){
+                        frame.removeKeyListener(kbHandler);
+                    }
                     paintChanges();
                     break;
                 case KeyEvent.VK_S:
@@ -153,8 +158,6 @@ public class Tetris {
     //开始游戏
     public void play(){
         //GUI
-        JFrame frame=new JFrame("Tetris");
-        KeyboardHandler kbHandler=new KeyboardHandler();
         mainPanel=new MainPanel(board,nowBlock,x,y,index);
         holdPanel=new HoldPanel(holdBlock);
         nextPanel=new NextPanel(next,nextCount);
