@@ -68,6 +68,7 @@ public class Tetris {
                     paintChanges();
                     break;
                 case KeyEvent.VK_S:
+                    speed=(double)1;
                     break;
                 case KeyEvent.VK_SHIFT:
                     if(holdCount==0){
@@ -118,6 +119,8 @@ public class Tetris {
                     for(int i=0;i<5;++i){
                         if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+1)%4)){
                             index=(index+1)%4;
+                            x+=temp[i][0];
+                            y+=temp[i][1];
                             paintChanges();
                             break;
                         }
@@ -129,6 +132,9 @@ public class Tetris {
 
         public void keyReleased(KeyEvent e) {
             // TODO Auto-generated method stub
+            if(e.getKeyCode()==KeyEvent.VK_S){
+                speed=1/(double)60;
+            }
 
         }
     }
@@ -186,10 +192,6 @@ public class Tetris {
         frame.setVisible(true);
         //主体
         while(true){
-            try{
-                int sleepTime=(int)(1000*60*speed);
-                Thread.currentThread().sleep(sleepTime);
-            }catch(Exception e){}
             if(board.canBePutted(nowBlock, x, y+1, index)){
                 y++;
             }
@@ -209,6 +211,10 @@ public class Tetris {
                 }
             }
             paintChanges();
+            try{
+                int sleepTime=(int)(1000/60/speed);
+                Thread.currentThread().sleep(sleepTime);
+            }catch(Exception e){}
         }
     }
     //画图函数
