@@ -75,6 +75,12 @@ public class MainPanel extends JPanel{
                 }
             }
         }
-        
+        g.setColor(Color.BLACK);
+        for(int x=0;x<10;++x){
+            g.drawLine(20*x, 0, 20*x, 400);
+        }
+        for(int y=0;y<20;++y){
+            g.drawLine(0, 20*y, 200, 20*y);
+        }
     }
 }

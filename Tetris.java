@@ -6,6 +6,7 @@ import javax.swing.border.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.time.Clock;
 
 public class Tetris {
     Board board;//面板
@@ -22,7 +23,7 @@ public class Tetris {
     MainPanel mainPanel;//游戏主画面，用来画board
     HoldPanel holdPanel;//hold面板，用来画hold的块
     NextPanel nextPanel;//next面板，用来画next序列
-    int lockTime=1000;//落下时的锁定时间
+    int lockTime=500;//落下时的锁定时间
     Tetris(){
         board = new Board();
         next=new ArrayList<Blocks>();
@@ -196,9 +197,9 @@ public class Tetris {
                 y++;
             }
             else{
-                try{
-                    Thread.currentThread().sleep(lockTime);
-                }catch(Exception e){}
+                Clock clock=Clock.systemDefaultZone();
+                long currentTime=clock.millis();
+                while((!board.canBePutted(nowBlock, x, y+1, index))&&clock.millis()-currentTime<lockTime);
                 if(board.canBePutted(nowBlock, x, y+1, index)){
                     y++;
                 }
@@ -210,11 +211,10 @@ public class Tetris {
                     }
                 }
             }
+            Clock clock=Clock.systemDefaultZone();
+            long currentTime=clock.millis();
+            while(clock.millis()-currentTime<1000/60/speed);
             paintChanges();
-            try{
-                int sleepTime=(int)(1000/60/speed);
-                Thread.currentThread().sleep(sleepTime);
-            }catch(Exception e){}
         }
     }
     //画图函数
