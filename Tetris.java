@@ -14,6 +14,7 @@ public class Tetris {
     Blocks nowBlock;//当前块
     Blocks holdBlock;//hold块
     int x,y,index;//xy坐标，index代表方向
+    int shadow_y;
     int nextCount=5;//能看多少个next
     int holdCount=0;//一个块被放下前只能hold一次
     int x0=3,y0=23;//初始xy坐标
@@ -23,7 +24,7 @@ public class Tetris {
     MainPanel mainPanel;//游戏主画面，用来画board
     HoldPanel holdPanel;//hold面板，用来画hold的块
     NextPanel nextPanel;//next面板，用来画next序列
-    int lockTime=500;//落下时的锁定时间
+    int lockTime=2000;//落下时的锁定时间
     Tetris(){
         board = new Board();
         next=new ArrayList<Blocks>();
@@ -31,9 +32,10 @@ public class Tetris {
         nowBlock=(Blocks)next.get(0);
         holdBlock=null;
         next.remove(0);
-        x=3;
-        y=23;
+        x=x0;
+        y=y0;
         index=0;
+        shadow();
     }
 
     public class KeyboardHandler implements KeyListener {
@@ -59,9 +61,7 @@ public class Tetris {
                     }
                     break;
                 case KeyEvent.VK_W:
-                    while(board.canBePutted(nowBlock, x, y+1, index)){
-                        ++y;
-                    }
+                    y=shadow_y;
                     changeBlock();
                     if(!board.canBePutted(nowBlock, x, y, index)){
                         frame.removeKeyListener(kbHandler);
@@ -165,7 +165,7 @@ public class Tetris {
     //开始游戏
     public void play(){
         //GUI
-        mainPanel=new MainPanel(board,nowBlock,x,y,index);
+        mainPanel=new MainPanel(board,nowBlock,x,y,index,shadow_y);
         holdPanel=new HoldPanel(holdBlock);
         nextPanel=new NextPanel(next,nextCount);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -211,18 +211,20 @@ public class Tetris {
                     }
                 }
             }
+            paintChanges();
             Clock clock=Clock.systemDefaultZone();
             long currentTime=clock.millis();
             while(clock.millis()-currentTime<1000/60/speed);
-            paintChanges();
         }
     }
     //画图函数
     public void paintChanges(){
+        shadow();
         mainPanel.board=board;
         mainPanel.nowBlock=nowBlock;
         mainPanel.block_x=x;
         mainPanel.block_y=y;
+        mainPanel.shadow_y=shadow_y;
         mainPanel.blockIndex=index;
         holdPanel.block=holdBlock;
         nextPanel.next=next;
@@ -242,5 +244,12 @@ public class Tetris {
         y=y0;
         holdCount=0;
         index=0;
+    }
+    //处理影子
+    public void shadow(){
+        shadow_y=y;
+        while(board.canBePutted(nowBlock, x, shadow_y+1, index)){
+            ++shadow_y;
+        }
     }
 }

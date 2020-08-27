@@ -6,12 +6,14 @@ public class MainPanel extends JPanel{
     Blocks nowBlock;
     int block_x,block_y;
     int blockIndex;
-    MainPanel(Board b,Blocks block,int x,int y,int index){
+    int shadow_y;
+    MainPanel(Board b,Blocks block,int x,int y,int index,int sy){
         board=b;
         nowBlock=block;
         block_x=x;
         block_y=y;
         blockIndex=index;
+        shadow_y=sy;
     }
     public void paintComponent(Graphics g){
         for(int x=0;x<10;++x){
@@ -40,13 +42,21 @@ public class MainPanel extends JPanel{
                         g.setColor(Color.decode(ColorsOfBlocks.color_T));
                         break;
                     case 0:
-                        g.setColor(Color.WHITE);
+                        g.setColor(Color.BLACK);
                         break;
                 }
                 g.fillRect(20*x, 20*(y-24), 20, 20);
             }
         }
         int[][] temp=Block2Array.m.get(nowBlock)[blockIndex];
+        g.setColor(Color.DARK_GRAY);
+        for(int x=0;x<temp.length;++x){
+            for(int y=0;y<temp.length;++y){
+                if(temp[y][x]!=0){
+                    g.fillRect(20*(x+block_x), 20*(y+shadow_y-24), 20, 20);
+                }
+            }
+        }
         if(nowBlock.equals(Blocks.I)){
             g.setColor(Color.decode(ColorsOfBlocks.color_I));
         }
