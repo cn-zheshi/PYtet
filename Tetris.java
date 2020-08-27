@@ -18,15 +18,17 @@ public class Tetris {
     int nextCount=5;//能看多少个next
     int holdCount=0;//一个块被放下前只能hold一次
     int x0=3,y0=23;//初始xy坐标
-    Double speed=((double)1)/60; 
+    int interval=60; 
     long pressTime=0;//按压时间
+    int dropBlockTimer=0;//落块计时器
+    int lockBlockTimer=0;//锁定计时器
     boolean lose=false;
     JFrame frame=new JFrame("Tetris");
     KeyboardHandler kbHandler=new KeyboardHandler();
     MainPanel mainPanel;//游戏主画面，用来画board
     HoldPanel holdPanel;//hold面板，用来画hold的块
     NextPanel nextPanel;//next面板，用来画next序列
-    int lockTime=2000;//落下时的锁定时间
+    int lockTime=1000;//落下时的锁定时间
     Tetris(){
         board = new Board();
         next=new ArrayList<Blocks>();
@@ -195,25 +197,29 @@ public class Tetris {
         frame.setVisible(true);
         //主体
         while(!lose){
-            mainPart();
-            try {
-                int temp=0;
-                long sleepTime=(long)(1000/60/speed);
-                while(temp<sleepTime&&pressTime==0){
-                    Thread.sleep(1);
-                    temp+=2;
-                }
-            } catch (Exception e) {
-                //TODO: handle exception
+            if(dropBlockTimer>=interval){
+                dropBlockTimer=0;
+                mainPart();
             }
-            Clock clock=Clock.systemDefaultZone();
-            long currentTime=clock.millis();
-            while(pressTime!=0){
-                if(clock.millis()-currentTime>20&&pressTime!=0){
+            if(pressTime!=0){
+                ++pressTime;
+                if((pressTime-1)%6==0&&pressTime!=0){
+                    dropBlockTimer=0;
                     mainPart();
-                    currentTime=clock.millis();
                 }
             }
+            else{
+                ++dropBlockTimer;
+            }
+            if(board.canBePutted(nowBlock, x, y+1, index)){
+                lockBlockTimer=0;
+            }
+            else{
+                ++lockBlockTimer;
+            }
+            try{
+                Thread.sleep((long)(1000/60));
+            }catch(Exception e){}
         }
     }
     //画图函数
@@ -257,17 +263,7 @@ public class Tetris {
             y++;
         }
         else{
-            try{
-                int temp=0;
-                while(temp<lockTime&&(!board.canBePutted(nowBlock, x, y+1, index))){
-                    Thread.sleep(1);
-                    temp+=2;
-                }
-            }catch(Exception e){}
-            if(board.canBePutted(nowBlock, x, y+1, index)){
-                y++;
-            }
-            else{
+            if(lockBlockTimer*1000/60>=lockTime){
                 changeBlock();
                 if((!board.canBePutted(nowBlock, x0, y0, index))&&x==x0&&y==y0){
                     frame.removeKeyListener(kbHandler);
