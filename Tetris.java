@@ -19,6 +19,7 @@ public class Tetris {
     int holdCount=0;//一个块被放下前只能hold一次
     int x0=3,y0=23;//初始xy坐标
     Double speed=((double)1)/60; 
+    long pressTime=0;//按压时间
     JFrame frame=new JFrame("Tetris");
     KeyboardHandler kbHandler=new KeyboardHandler();
     MainPanel mainPanel;//游戏主画面，用来画board
@@ -39,9 +40,7 @@ public class Tetris {
     }
 
     public class KeyboardHandler implements KeyListener {
-        public void keyTyped(KeyEvent e) {
-
-        }
+        public void keyTyped(KeyEvent e) {}
 
         public void keyPressed(KeyEvent e) {
             // TODO Auto-generated method stub
@@ -69,7 +68,9 @@ public class Tetris {
                     paintChanges();
                     break;
                 case KeyEvent.VK_S:
-                    speed=(double)1;
+                    if(pressTime==0){
+                        ++pressTime;
+                    }
                     break;
                 case KeyEvent.VK_SHIFT:
                     if(holdCount==0){
@@ -134,7 +135,7 @@ public class Tetris {
         public void keyReleased(KeyEvent e) {
             // TODO Auto-generated method stub
             if(e.getKeyCode()==KeyEvent.VK_S){
-                speed=1/(double)60;
+                pressTime=0;
             }
 
         }
@@ -193,28 +194,31 @@ public class Tetris {
         frame.setVisible(true);
         //主体
         while(true){
-            if(board.canBePutted(nowBlock, x, y+1, index)){
-                y++;
-            }
-            else{
-                Clock clock=Clock.systemDefaultZone();
-                long currentTime=clock.millis();
-                while((!board.canBePutted(nowBlock, x, y+1, index))&&clock.millis()-currentTime<lockTime);
-                if(board.canBePutted(nowBlock, x, y+1, index)){
-                    y++;
+            mainPart();
+            if(pressTime==0){
+                try {
+                    long sleepTime=(long)(1000/60/speed);
+                    Thread.sleep(sleepTime);
+                } catch (Exception e) {
+                    //TODO: handle exception
                 }
-                else{
-                    changeBlock();
-                    if(!board.canBePutted(nowBlock, x, y, index)){
+            }
+            Clock clock=Clock.systemDefaultZone();
+            long currentTime=clock.millis();
+            while(pressTime!=0){
+                if(clock.millis()-currentTime>20&&pressTime!=0){
+                    mainPart();
+                    currentTime=clock.millis();
+                    if((!board.canBePutted(nowBlock, x0, y0, index))&&x==x0&&y==y0){
                         frame.removeKeyListener(kbHandler);
                         break;
                     }
                 }
             }
-            paintChanges();
-            Clock clock=Clock.systemDefaultZone();
-            long currentTime=clock.millis();
-            while(clock.millis()-currentTime<1000/60/speed);
+            if((!board.canBePutted(nowBlock, x0, y0, index))&&x==x0&&y==y0){
+                frame.removeKeyListener(kbHandler);
+                break;
+            }
         }
     }
     //画图函数
@@ -251,5 +255,27 @@ public class Tetris {
         while(board.canBePutted(nowBlock, x, shadow_y+1, index)){
             ++shadow_y;
         }
+    }
+    //主要移动逻辑
+    public void mainPart(){
+        if(board.canBePutted(nowBlock, x, y+1, index)){
+            y++;
+        }
+        else{
+            try{
+                int temp=0;
+                while(temp<lockTime&&(!board.canBePutted(nowBlock, x, y+1, index))){
+                    Thread.sleep(1);
+                    temp+=2;
+                }
+            }catch(Exception e){}
+            if(board.canBePutted(nowBlock, x, y+1, index)){
+                y++;
+            }
+            else{
+                changeBlock();
+            }
+        }
+        paintChanges();
     }
 }
