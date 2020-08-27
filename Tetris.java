@@ -15,88 +15,108 @@ public class Tetris {
     Blocks holdBlock;//hold块
     int x,y,index;//xy坐标，index代表方向
     int shadow_y;
+    long softDropTime;//按压时间
+    int dropBlockTimer;//落块计时器
+    int lockBlockTimer;//锁定计时器
+    boolean lose;
     int nextCount=5;//能看多少个next
     int holdCount=0;//一个块被放下前只能hold一次
     int x0=3,y0=23;//初始xy坐标
     int interval=60; 
-    long pressTime=0;//按压时间
-    int dropBlockTimer=0;//落块计时器
-    int lockBlockTimer=0;//锁定计时器
-    boolean lose=false;
     JFrame frame=new JFrame("Tetris");
-    KeyboardHandler kbHandler=new KeyboardHandler();
+    MoveHandler kbHandler=new MoveHandler();
+    SpinHandler spHandler=new SpinHandler();
     MainPanel mainPanel;//游戏主画面，用来画board
     HoldPanel holdPanel;//hold面板，用来画hold的块
     NextPanel nextPanel;//next面板，用来画next序列
     int lockTime=1000;//落下时的锁定时间
     Tetris(){
-        board = new Board();
-        next=new ArrayList<Blocks>();
-        creatBlocks();
-        nowBlock=(Blocks)next.get(0);
-        holdBlock=null;
-        next.remove(0);
-        x=x0;
-        y=y0;
-        index=0;
-        shadow();
+        reset();
     }
 
-    public class KeyboardHandler implements KeyListener {
+    public class MoveHandler implements KeyListener {
         public void keyTyped(KeyEvent e) {}
 
         public void keyPressed(KeyEvent e) {
             // TODO Auto-generated method stub
             System.out.println(e.getKeyCode());
+            if(!lose){
+                switch(e.getKeyCode()){
+                    case KeyEvent.VK_A:
+                        if(board.canBePutted(nowBlock, x-1, y, index)){
+                            --x;
+                            paintChanges();
+                        }
+                    break;
+                    case KeyEvent.VK_D:
+                        if(board.canBePutted(nowBlock, x+1, y, index)){
+                            ++x;
+                            paintChanges();
+                        }
+                    break;
+                    case KeyEvent.VK_W:
+                        y=shadow_y;
+                        changeBlock();
+                        paintChanges();
+                    break;
+                    case KeyEvent.VK_S:
+                        if(softDropTime==0){
+                            ++softDropTime;
+                        }
+                    break;
+                    case KeyEvent.VK_R:
+                        reset();
+                        paintChanges();
+                    break;
+                    case KeyEvent.VK_SHIFT:
+                        if(holdCount==0){
+                            if(holdBlock==null){
+                                holdBlock=nowBlock;
+                                nowBlock=(Blocks)next.get(0);
+                                next.remove(0);
+                                if(next.size()<=nextCount){
+                                    creatBlocks();
+                                }
+                            }
+                            else{
+                                Blocks tempBlock=nowBlock;
+                                nowBlock=holdBlock;
+                                holdBlock=tempBlock;
+                            }
+                            x=x0;
+                            y=y0;
+                            index=0;
+                            ++holdCount;
+                            paintChanges();
+                        }
+                    break;
+                }
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_R){
+                reset();
+                paintChanges();
+            }
+        }
+
+        public void keyReleased(KeyEvent e) {
+            // TODO Auto-generated method stub
+            if(e.getKeyCode()==KeyEvent.VK_S){
+                softDropTime=0;
+            }
+
+        }
+    }
+    public class SpinHandler implements KeyListener{
+
+        public void keyTyped(KeyEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+        public void keyPressed(KeyEvent e) {
+            // TODO Auto-generated method stub
             int[][] temp;
             switch(e.getKeyCode()){
-                case KeyEvent.VK_A:
-                    if(board.canBePutted(nowBlock, x-1, y, index)){
-                        --x;
-                        paintChanges();
-                    }
-                    break;
-                case KeyEvent.VK_D:
-                    if(board.canBePutted(nowBlock, x+1, y, index)){
-                        ++x;
-                        paintChanges();
-                    }
-                    break;
-                case KeyEvent.VK_W:
-                    y=shadow_y;
-                    changeBlock();
-                    if(!board.canBePutted(nowBlock, x, y, index)){
-                        frame.removeKeyListener(kbHandler);
-                    }
-                    paintChanges();
-                    break;
-                case KeyEvent.VK_S:
-                    if(pressTime==0){
-                        ++pressTime;
-                    }
-                    break;
-                case KeyEvent.VK_SHIFT:
-                    if(holdCount==0){
-                        if(holdBlock==null){
-                            holdBlock=nowBlock;
-                            nowBlock=(Blocks)next.get(0);
-                            next.remove(0);
-                            if(next.size()<=nextCount){
-                                creatBlocks();
-                            }
-                        }
-                        else{
-                            Blocks tempBlock=nowBlock;
-                            nowBlock=holdBlock;
-                            holdBlock=tempBlock;
-                        }
-                        x=x0;
-                        y=y0;
-                        index=0;
-                        ++holdCount;
-                        paintChanges();
-                    }
-                    break;
                 case KeyEvent.VK_LEFT:
                     if(nowBlock.equals(Blocks.I)){
                         temp=SRS.iBlock[index][(index+3)%4];
@@ -113,7 +133,7 @@ public class Tetris {
                             break;
                         }
                     }
-                    break;
+                break;
                 case KeyEvent.VK_RIGHT:
                     if(nowBlock.equals(Blocks.I)){
                         temp=SRS.iBlock[index][(index+1)%4];
@@ -130,21 +150,16 @@ public class Tetris {
                             break;
                         }
                     }
-                    break;
+                break;
             }
 
         }
 
         public void keyReleased(KeyEvent e) {
             // TODO Auto-generated method stub
-            if(e.getKeyCode()==KeyEvent.VK_S){
-                pressTime=0;
-            }
 
         }
-    }
-    public static void main(String[] args){
-        new Tetris().play();
+        
     }
     //生成7bag的块
     public void creatBlocks(){
@@ -168,12 +183,93 @@ public class Tetris {
     }
     //开始游戏
     public void play(){
-        //GUI
+        setGUI();
+        while(!lose){
+            if(dropBlockTimer>=interval){
+                dropBlockTimer=0;
+                mainPart();
+            }
+            if(softDropTime!=0){
+                ++softDropTime;
+                if((softDropTime-1)%6==0&&softDropTime!=0){
+                    dropBlockTimer=0;
+                    mainPart();
+                }
+            }
+            else{
+                ++dropBlockTimer;
+            }
+            if(board.canBePutted(nowBlock, x, y+1, index)){
+                lockBlockTimer=0;
+            }
+            else{
+                ++lockBlockTimer;
+            }
+            try{
+                Thread.sleep((long)(1000/60));
+            }catch(Exception e){}
+        }
+    }
+    //画图函数
+    public void paintChanges(){
+        if(!lose){
+            shadow();
+            mainPanel.board=board;
+            mainPanel.nowBlock=nowBlock;
+            mainPanel.block_x=x;
+            mainPanel.block_y=y;
+            mainPanel.shadow_y=shadow_y;
+            mainPanel.blockIndex=index;
+            holdPanel.block=holdBlock;
+            nextPanel.next=next;
+            mainPanel.repaint();
+            nextPanel.repaint();
+            holdPanel.repaint();
+        }
+    }
+    //换成下一块
+    public void changeBlock(){
+        board.addBlock(nowBlock, x, y, index);
+        nowBlock=(Blocks)next.get(0);
+        next.remove(0);
+        if(next.size()<=nextCount){
+            creatBlocks();
+        }
+        x=x0;
+        y=y0;
+        holdCount=0;
+        index=0;
+        if((!board.canBePutted(nowBlock, x, y, index))){
+            lose=true;
+        }
+    }
+    //处理影子
+    public void shadow(){
+        shadow_y=y;
+        while(board.canBePutted(nowBlock, x, shadow_y+1, index)){
+            ++shadow_y;
+        }
+    }
+    //主要移动逻辑
+    public void mainPart(){
+        if(board.canBePutted(nowBlock, x, y+1, index)){
+            y++;
+        }
+        else{
+            if(lockBlockTimer*1000/60>=lockTime){
+                changeBlock();
+            }
+        }
+        paintChanges();
+    }
+    //GUI
+    public void setGUI(){
         mainPanel=new MainPanel(board,nowBlock,x,y,index,shadow_y);
         holdPanel=new HoldPanel(holdBlock);
         nextPanel=new NextPanel(next,nextCount);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.addKeyListener(kbHandler);
+        frame.addKeyListener(spHandler);
         mainPanel.setSize(200, 400);
         holdPanel.setSize(80,80);
         nextPanel.setSize(80,400);
@@ -195,84 +291,26 @@ public class Tetris {
         frame.setSize(420, 440);
         frame.setResizable(false);
         frame.setVisible(true);
-        //主体
-        while(!lose){
-            if(dropBlockTimer>=interval){
-                dropBlockTimer=0;
-                mainPart();
-            }
-            if(pressTime!=0){
-                ++pressTime;
-                if((pressTime-1)%6==0&&pressTime!=0){
-                    dropBlockTimer=0;
-                    mainPart();
-                }
-            }
-            else{
-                ++dropBlockTimer;
-            }
-            if(board.canBePutted(nowBlock, x, y+1, index)){
-                lockBlockTimer=0;
-            }
-            else{
-                ++lockBlockTimer;
-            }
-            try{
-                Thread.sleep((long)(1000/60));
-            }catch(Exception e){}
-        }
     }
-    //画图函数
-    public void paintChanges(){
-        shadow();
-        mainPanel.board=board;
-        mainPanel.nowBlock=nowBlock;
-        mainPanel.block_x=x;
-        mainPanel.block_y=y;
-        mainPanel.shadow_y=shadow_y;
-        mainPanel.blockIndex=index;
-        holdPanel.block=holdBlock;
-        nextPanel.next=next;
-        mainPanel.repaint();
-        nextPanel.repaint();
-        holdPanel.repaint();
-    }
-    //换成下一块
-    public void changeBlock(){
-        board.addBlock(nowBlock, x, y, index);
+    //重置游戏
+    public void reset(){
+        board = new Board();
+        next=new ArrayList<Blocks>();
+        creatBlocks();
         nowBlock=(Blocks)next.get(0);
+        holdBlock=null;
         next.remove(0);
-        if(next.size()<=nextCount){
-            creatBlocks();
-        }
         x=x0;
         y=y0;
-        holdCount=0;
         index=0;
+        shadow();
+        softDropTime=0;
+        dropBlockTimer=0;
+        lockBlockTimer=0;
+        lose=false;
     }
-    //处理影子
-    public void shadow(){
-        shadow_y=y;
-        while(board.canBePutted(nowBlock, x, shadow_y+1, index)){
-            ++shadow_y;
-        }
-    }
-    //主要移动逻辑
-    public void mainPart(){
-        if(board.canBePutted(nowBlock, x, y+1, index)){
-            y++;
-        }
-        else{
-            if(lockBlockTimer*1000/60>=lockTime){
-                changeBlock();
-                if((!board.canBePutted(nowBlock, x0, y0, index))&&x==x0&&y==y0){
-                    frame.removeKeyListener(kbHandler);
-                    lose=true;
-                }
-            }
-        }
-        if(!lose){
-            paintChanges();
-        }
+
+    public static void main(String[] args){
+        new Tetris().play();
     }
 }
