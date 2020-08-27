@@ -195,13 +195,15 @@ public class Tetris {
         //主体
         while(true){
             mainPart();
-            if(pressTime==0){
-                try {
-                    long sleepTime=(long)(1000/60/speed);
-                    Thread.sleep(sleepTime);
-                } catch (Exception e) {
-                    //TODO: handle exception
+            try {
+                int temp=0;
+                long sleepTime=(long)(1000/60/speed);
+                while(temp<sleepTime&&pressTime==0){
+                    Thread.sleep(1);
+                    temp+=2;
                 }
+            } catch (Exception e) {
+                //TODO: handle exception
             }
             Clock clock=Clock.systemDefaultZone();
             long currentTime=clock.millis();
