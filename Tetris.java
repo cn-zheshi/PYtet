@@ -20,6 +20,7 @@ public class Tetris {
     int x0=3,y0=23;//初始xy坐标
     Double speed=((double)1)/60; 
     long pressTime=0;//按压时间
+    boolean lose=false;
     JFrame frame=new JFrame("Tetris");
     KeyboardHandler kbHandler=new KeyboardHandler();
     MainPanel mainPanel;//游戏主画面，用来画board
@@ -193,7 +194,7 @@ public class Tetris {
         frame.setResizable(false);
         frame.setVisible(true);
         //主体
-        while(true){
+        while(!lose){
             mainPart();
             try {
                 int temp=0;
@@ -211,15 +212,7 @@ public class Tetris {
                 if(clock.millis()-currentTime>20&&pressTime!=0){
                     mainPart();
                     currentTime=clock.millis();
-                    if((!board.canBePutted(nowBlock, x0, y0, index))&&x==x0&&y==y0){
-                        frame.removeKeyListener(kbHandler);
-                        break;
-                    }
                 }
-            }
-            if((!board.canBePutted(nowBlock, x0, y0, index))&&x==x0&&y==y0){
-                frame.removeKeyListener(kbHandler);
-                break;
             }
         }
     }
@@ -276,8 +269,14 @@ public class Tetris {
             }
             else{
                 changeBlock();
+                if((!board.canBePutted(nowBlock, x0, y0, index))&&x==x0&&y==y0){
+                    frame.removeKeyListener(kbHandler);
+                    lose=true;
+                }
             }
         }
-        paintChanges();
+        if(!lose){
+            paintChanges();
+        }
     }
 }
