@@ -30,27 +30,30 @@ public class Tetris {
     HoldPanel holdPanel;//hold面板，用来画hold的块
     NextPanel nextPanel;//next面板，用来画next序列
     int lockTime=1000;//落下时的锁定时间
+    boolean isTSpin;
+    boolean isTSpinMini;
     Tetris(){
         reset();
     }
 
-    public class MoveHandler implements KeyListener {
+    private class MoveHandler implements KeyListener {
         public void keyTyped(KeyEvent e) {}
 
         public void keyPressed(KeyEvent e) {
             // TODO Auto-generated method stub
-            System.out.println(e.getKeyCode());
             if(!lose){
                 switch(e.getKeyCode()){
                     case KeyEvent.VK_A:
                         if(board.canBePutted(nowBlock, x-1, y, index)){
                             --x;
+                            resetTSpin();
                             paintChanges();
                         }
                     break;
                     case KeyEvent.VK_D:
                         if(board.canBePutted(nowBlock, x+1, y, index)){
                             ++x;
+                            resetTSpin();
                             paintChanges();
                         }
                     break;
@@ -106,7 +109,7 @@ public class Tetris {
 
         }
     }
-    public class SpinHandler implements KeyListener{
+    private class SpinHandler implements KeyListener{
 
         public void keyTyped(KeyEvent e) {
             // TODO Auto-generated method stub
@@ -126,6 +129,12 @@ public class Tetris {
                     }
                     for(int i=0;i<5;++i){
                         if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+3)%4)){
+                            if(nowBlock.equals(Blocks.T)){
+                                isTSpinMini=isTSpinMini(i);
+                                if(!isTSpinMini){
+                                    isTSpin=isTSpin(i);
+                                }
+                            }
                             index=(index+3)%4;
                             x+=temp[i][0];
                             y+=temp[i][1];
@@ -143,6 +152,12 @@ public class Tetris {
                     }
                     for(int i=0;i<5;++i){
                         if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+1)%4)){
+                            if(nowBlock.equals(Blocks.T)){
+                                isTSpinMini=isTSpinMini(i);
+                                if(!isTSpinMini){
+                                    isTSpin=isTSpin(i);
+                                }
+                            }
                             index=(index+1)%4;
                             x+=temp[i][0];
                             y+=temp[i][1];
@@ -162,7 +177,7 @@ public class Tetris {
         
     }
     //生成7bag的块
-    public void creatBlocks(){
+    private void creatBlocks(){
         Blocks[] bag={Blocks.I,Blocks.L,Blocks.J,Blocks.O,Blocks.S,Blocks.Z,Blocks.T};
         Random random=new Random();
         while(true){
@@ -181,7 +196,7 @@ public class Tetris {
             }
         }
     }
-    //开始游戏
+    //开始游戏,唯一对外接口
     public void play(){
         setGUI();
         while(!lose){
@@ -211,7 +226,7 @@ public class Tetris {
         }
     }
     //画图函数
-    public void paintChanges(){
+    private void paintChanges(){
         if(!lose){
             shadow();
             mainPanel.board=board;
@@ -228,7 +243,9 @@ public class Tetris {
         }
     }
     //换成下一块
-    public void changeBlock(){
+    private void changeBlock(){
+        board.isTSpin=isTSpin;
+        board.isTSpinMini=isTSpinMini;
         board.addBlock(nowBlock, x, y, index);
         nowBlock=(Blocks)next.get(0);
         next.remove(0);
@@ -239,21 +256,23 @@ public class Tetris {
         y=y0;
         holdCount=0;
         index=0;
+        resetTSpin();
         if((!board.canBePutted(nowBlock, x, y, index))){
             lose=true;
         }
     }
     //处理影子
-    public void shadow(){
+    private void shadow(){
         shadow_y=y;
         while(board.canBePutted(nowBlock, x, shadow_y+1, index)){
             ++shadow_y;
         }
     }
     //主要下落逻辑
-    public void mainPart(){
+    private void mainPart(){
         if(board.canBePutted(nowBlock, x, y+1, index)){
             y++;
+            resetTSpin();
         }
         else{
             if(lockBlockTimer*1000/60>=lockTime){
@@ -263,7 +282,7 @@ public class Tetris {
         paintChanges();
     }
     //GUI
-    public void setGUI(){
+    private void setGUI(){
         mainPanel=new MainPanel(board,nowBlock,x,y,index,shadow_y);
         holdPanel=new HoldPanel(holdBlock);
         nextPanel=new NextPanel(next,nextCount);
@@ -293,7 +312,7 @@ public class Tetris {
         frame.setVisible(true);
     }
     //重置游戏
-    public void reset(){
+    private void reset(){
         board = new Board();
         next=new ArrayList<Blocks>();
         creatBlocks();
@@ -308,8 +327,60 @@ public class Tetris {
         dropBlockTimer=0;
         lockBlockTimer=0;
         lose=false;
+        resetTSpin();
     }
-
+    //是不是T-Spin或T-SpinMini
+    private boolean isTSpin(int i){
+        if(i!=0){
+            return true;
+        }
+        int temp=0;
+        if(board.board[x][y]!=0){
+            ++temp;
+        }
+        if(x+2<10){
+            if(board.board[x+2][y]!=0){
+                ++temp;
+            }
+        }
+        else{
+            ++temp;
+        }
+        if(y+2<44){
+            if(board.board[x][y+2]!=0){
+                ++temp;
+            }
+        }
+        else{
+            ++temp;
+        }
+        if(x+2<10&&y+2<44){
+            if(board.board[x+2][y+2]!=0){
+                ++temp;
+            }
+        }
+        else{
+            ++temp;
+        }
+        if(temp>=3){
+            return true;
+        }
+        return false;
+    }
+    private boolean isTSpinMini(int i){
+        if((index==1||index==3)&&i==2){
+            return true;
+        }
+        if(index==0&&i==1){
+            return true;
+        }
+        return false;
+    }
+    //重置T-Spin
+    private void resetTSpin(){
+        isTSpin=false;
+        isTSpinMini=false;
+    }
     public static void main(String[] args){
         new Tetris().play();
     }
