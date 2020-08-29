@@ -227,20 +227,18 @@ public class Tetris {
     }
     //画图函数
     private void paintChanges(){
-        if(!lose){
-            shadow();
-            mainPanel.board=board;
-            mainPanel.nowBlock=nowBlock;
-            mainPanel.block_x=x;
-            mainPanel.block_y=y;
-            mainPanel.shadow_y=shadow_y;
-            mainPanel.blockIndex=index;
-            holdPanel.block=holdBlock;
-            nextPanel.next=next;
-            mainPanel.repaint();
-            nextPanel.repaint();
-            holdPanel.repaint();
-        }
+        shadow();
+        mainPanel.board=board;
+        mainPanel.nowBlock=nowBlock;
+        mainPanel.block_x=x;
+        mainPanel.block_y=y;
+        mainPanel.shadow_y=shadow_y;
+        mainPanel.blockIndex=index;
+        holdPanel.block=holdBlock;
+        nextPanel.next=next;
+        mainPanel.repaint();
+        nextPanel.repaint();
+        holdPanel.repaint();
     }
     //换成下一块
     private void changeBlock(){
