@@ -190,11 +190,11 @@ public class Tetris {
                 mainPart();
             }
             if(softDropTime!=0){
-                ++softDropTime;
                 if((softDropTime-1)%6==0&&softDropTime!=0){
                     dropBlockTimer=0;
                     mainPart();
                 }
+                ++softDropTime;
             }
             else{
                 ++dropBlockTimer;
@@ -250,7 +250,7 @@ public class Tetris {
             ++shadow_y;
         }
     }
-    //主要移动逻辑
+    //主要下落逻辑
     public void mainPart(){
         if(board.canBePutted(nowBlock, x, y+1, index)){
             y++;
