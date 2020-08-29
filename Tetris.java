@@ -1,12 +1,8 @@
 import java.util.*;
-import java.util.concurrent.TransferQueue;
 
 import javax.swing.*;
-import javax.swing.border.*;
 
-import java.awt.*;
 import java.awt.event.*;
-import java.time.Clock;
 
 public class Tetris {
     Board board;//面板
@@ -14,7 +10,7 @@ public class Tetris {
     Blocks nowBlock;//当前块
     Blocks holdBlock;//hold块
     int x,y,index;//xy坐标，index代表方向
-    int shadow_y;
+    int shadow_y;//影子y坐标
     long softDropTime;//按压时间
     int dropBlockTimer;//落块计时器
     int lockBlockTimer;//锁定计时器
