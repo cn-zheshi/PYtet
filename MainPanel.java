@@ -99,16 +99,15 @@ public class MainPanel extends JPanel{
         int[][] tempBoard=board.board.clone();
         int[][] tempBlock=Block2Array.m.get(nowBlock)[blockIndex].clone();
         for(int y=24;y<44;++y){
-            int tempInt=0;
             for(int x=0;x<10;++x){
-                tempInt=8*tempInt+tempBoard[x][y];
-                if(x>=block_x&&x<block_x+tempBlock.length&&y>=block_y&&y<block_y+tempBlock.length){
-                    tempInt+=tempBlock[y-block_y][x-block_x];
+                if(x>=block_x&&x<block_x+tempBlock.length&&y>=block_y&&y<block_y+tempBlock.length&&tempBlock[y-block_y][x-block_x]!=0){
+                    str.append(tempBlock[y-block_y][x-block_x]);
+                }
+                else{
+                    str.append(tempBoard[x][y]);
                 }
             }
-            str.append(tempInt);
             str.append(",");
-            tempInt=0;
         }
         return new String(str);
     }
