@@ -25,6 +25,7 @@ public class Tetris {
     MainPanel mainPanel;//游戏主画面，用来画board
     HoldPanel holdPanel;//hold面板，用来画hold的块
     NextPanel nextPanel;//next面板，用来画next序列
+    AnotherPlayerPanel anotherPlayerPanel;//对手的主面板
     int lockTime=1000;//落下时的锁定时间
     boolean isTSpin;
     boolean isTSpinMini;
@@ -280,12 +281,14 @@ public class Tetris {
         mainPanel=new MainPanel(board,nowBlock,x,y,index,shadow_y);
         holdPanel=new HoldPanel(holdBlock);
         nextPanel=new NextPanel(next,nextCount);
+        anotherPlayerPanel=new AnotherPlayerPanel();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.addKeyListener(kbHandler);
         frame.addKeyListener(spHandler);
         mainPanel.setSize(200, 400);
         holdPanel.setSize(80,80);
         nextPanel.setSize(80,400);
+        anotherPlayerPanel.setSize(80,160);
         JPanel borderPanel0=new BorderPanel();
         borderPanel0.setSize(20, 400);
         JPanel borderPanel1=new BorderPanel();
@@ -293,12 +296,14 @@ public class Tetris {
         frame.add(holdPanel);
         frame.add(mainPanel);
         frame.add(nextPanel);
+        frame.add(anotherPlayerPanel);
         frame.add(borderPanel0);
         frame.add(borderPanel1);
         frame.setLayout(null);
         mainPanel.setLocation(100,0);
         holdPanel.setLocation(0,0);
         nextPanel.setLocation(320,0);
+        anotherPlayerPanel.setLocation(0,100);
         borderPanel0.setLocation(80, 0);
         borderPanel1.setLocation(300,0);
         frame.setSize(420, 440);
