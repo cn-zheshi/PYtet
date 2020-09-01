@@ -127,7 +127,7 @@ public class Tetris {
                     for(int i=0;i<5;++i){
                         if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+3)%4)){
                             if(nowBlock.equals(Blocks.T)){
-                                isTSpinMini=isTSpinMini(i);
+                                isTSpinMini=isTSpinMini(i,true);
                                 if(!isTSpinMini){
                                     isTSpin=isTSpin(i);
                                 }
@@ -150,7 +150,7 @@ public class Tetris {
                     for(int i=0;i<5;++i){
                         if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+1)%4)){
                             if(nowBlock.equals(Blocks.T)){
-                                isTSpinMini=isTSpinMini(i);
+                                isTSpinMini=isTSpinMini(i,false);
                                 if(!isTSpinMini){
                                     isTSpin=isTSpin(i);
                                 }
@@ -366,8 +366,11 @@ public class Tetris {
         }
         return false;
     }
-    private boolean isTSpinMini(int i){
-        if((index==1||index==3)&&i==2){
+    private boolean isTSpinMini(int i,boolean isSpinLeft){
+        if(index==1&&isSpinLeft&&i==2){
+            return true;
+        }
+        if(index==3&&(!isSpinLeft)&&i==2){
             return true;
         }
         if(index==0&&i==1){
