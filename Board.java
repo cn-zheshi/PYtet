@@ -54,7 +54,7 @@ public class Board {
             calRubbishLines();
         }
         reset();
-        System.out.println(rubbishLines);
+        //System.out.println(rubbishLines);
         return;
     }
     //算连击

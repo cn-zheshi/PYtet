@@ -129,7 +129,7 @@ public class Tetris {
                             if(nowBlock.equals(Blocks.T)){
                                 isTSpinMini=isTSpinMini(i,true);
                                 if(!isTSpinMini){
-                                    isTSpin=isTSpin(i);
+                                    isTSpin=isTSpin(i,true);
                                 }
                             }
                             index=(index+3)%4;
@@ -152,7 +152,7 @@ public class Tetris {
                             if(nowBlock.equals(Blocks.T)){
                                 isTSpinMini=isTSpinMini(i,false);
                                 if(!isTSpinMini){
-                                    isTSpin=isTSpin(i);
+                                    isTSpin=isTSpin(i,false);
                                 }
                             }
                             index=(index+1)%4;
@@ -329,7 +329,7 @@ public class Tetris {
         resetTSpin();
     }
     //是不是T-Spin或T-SpinMini
-    private boolean isTSpin(int i){
+    private boolean isTSpin(int i,boolean isSpinLeft){
         if(i!=0){
             return true;
         }
@@ -361,7 +361,7 @@ public class Tetris {
         else{
             ++temp;
         }
-        if(temp>=3){
+        if(temp>=3&&!board.canBePutted(nowBlock, x, y-1, (index+(isSpinLeft?3:1))%4)){
             return true;
         }
         return false;
