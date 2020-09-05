@@ -32,6 +32,7 @@ public class Tetris {
     String playingType="Single";
     Client client;
     Tetris(){
+        anotherPlayerPanel=new AnotherPlayerPanel();
         reset();
     }
 
@@ -247,7 +248,6 @@ public class Tetris {
         mainPanel.repaint();
         nextPanel.repaint();
         holdPanel.repaint();
-        //暂时不可用，未知原因无法完成发送
         if(playingType.equals("Multiplayer")){
             client.writer.println(mainPanel.toString());
         }
@@ -296,7 +296,6 @@ public class Tetris {
         mainPanel=new MainPanel(board,nowBlock,x,y,index,shadow_y);
         holdPanel=new HoldPanel(holdBlock);
         nextPanel=new NextPanel(next,nextCount);
-        anotherPlayerPanel=new AnotherPlayerPanel();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.addKeyListener(kbHandler);
         frame.addKeyListener(spHandler);
