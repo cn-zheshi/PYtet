@@ -29,6 +29,8 @@ public class Tetris {
     int lockTime=1000;//落下时的锁定时间
     boolean isTSpin;
     boolean isTSpinMini;
+    String playingType="Single";
+    Client client;
     Tetris(){
         reset();
     }
@@ -65,8 +67,10 @@ public class Tetris {
                         }
                     break;
                     case KeyEvent.VK_R:
-                        reset();
-                        paintChanges();
+                        if(playingType.equals("Single")){
+                            reset();
+                            paintChanges();
+                        }
                     break;
                     case KeyEvent.VK_SHIFT:
                         if(holdCount==0){
@@ -222,6 +226,13 @@ public class Tetris {
             }catch(Exception e){}
         }
     }
+    //多人游戏
+    public void playMulti(){
+        playingType="Multiplayer";
+        client=new Client(anotherPlayerPanel);
+        client.go();
+        play();
+    }
     //画图函数
     private void paintChanges(){
         shadow();
@@ -236,6 +247,10 @@ public class Tetris {
         mainPanel.repaint();
         nextPanel.repaint();
         holdPanel.repaint();
+        //暂时不可用，未知原因无法完成发送
+        if(playingType.equals("Multiplayer")){
+            client.writer.println(mainPanel.toString());
+        }
     }
     //换成下一块
     private void changeBlock(){
@@ -296,7 +311,9 @@ public class Tetris {
         frame.add(holdPanel);
         frame.add(mainPanel);
         frame.add(nextPanel);
-        frame.add(anotherPlayerPanel);
+        if(playingType.equals("Multiplayer")){
+            frame.add(anotherPlayerPanel);
+        }
         frame.add(borderPanel0);
         frame.add(borderPanel1);
         frame.setLayout(null);
@@ -384,6 +401,6 @@ public class Tetris {
         isTSpinMini=false;
     }
     public static void main(String[] args){
-        new Tetris().play();
+        new Tetris().playMulti();
     }
 }
