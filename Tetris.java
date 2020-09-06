@@ -250,6 +250,7 @@ public class Tetris {
         holdPanel.repaint();
         if(playingType.equals("Multiplayer")){
             client.writer.println(mainPanel.toString());
+            client.writer.flush();
         }
     }
     //换成下一块
