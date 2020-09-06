@@ -6,4 +6,5 @@ public class ColorsOfBlocks {
     static String color_Z=new String("0xFF0000");
     static String color_S=new String("0x00FF00");
     static String color_T=new String("0xFF00FF");
+    static String color_Rubbish=new String("0xC0C0C0");
 }
