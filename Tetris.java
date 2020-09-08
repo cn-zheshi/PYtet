@@ -251,7 +251,18 @@ public class Tetris {
         nextPanel.repaint();
         holdPanel.repaint();
         if(playMode.equals("Multiplayer")){
-            client.writer.println(mainPanel.toString()+(board.rubbishLines>=10?board.rubbishLines:"0"+board.rubbishLines));
+            int rubbishLine=board.rubbishLines;
+            while(rubbishLine!=0&&!rubbishLines.isEmpty()){
+                if(rubbishLine>rubbishLines.get(0)){
+                    rubbishLine-=rubbishLines.get(0);
+                }
+                else{
+                    int temp=rubbishLines.get(0);
+                    rubbishLines.set(0,temp-rubbishLine);
+                    rubbishLine=0;
+                }
+            }
+            client.writer.println(mainPanel.toString()+(rubbishLine>=10?rubbishLine:"0"+rubbishLine));
             board.rubbishLines=0;
             client.writer.flush();
         }
@@ -266,7 +277,9 @@ public class Tetris {
         if(next.size()<=nextCount){
             creatBlocks();
         }
-        increaseRubbishLines();
+        if(board.ren<0){
+            increaseRubbishLines();
+        }
         x=x0;
         y=y0;
         holdCount=0;
