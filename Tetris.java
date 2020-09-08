@@ -27,12 +27,14 @@ public class Tetris {
     NextPanel nextPanel;//next面板，用来画next序列
     AnotherPlayerPanel anotherPlayerPanel;//对手的主面板
     int lockTime=1000;//落下时的锁定时间
-    boolean isTSpin;
+    boolean isTSpin;//是不是T-Spin
     boolean isTSpinMini;
-    String playingType="Single";
+    String playMode="Single";//游戏模式
+    ArrayList<Integer> rubbishLines;
     Client client;
     Tetris(){
         anotherPlayerPanel=new AnotherPlayerPanel();
+        rubbishLines=new ArrayList<Integer>();
         reset();
     }
 
@@ -68,7 +70,7 @@ public class Tetris {
                         }
                     break;
                     case KeyEvent.VK_R:
-                        if(playingType.equals("Single")){
+                        if(playMode.equals("Single")){
                             reset();
                             paintChanges();
                         }
@@ -229,8 +231,8 @@ public class Tetris {
     }
     //多人游戏
     public void playMulti(){
-        playingType="Multiplayer";
-        client=new Client(anotherPlayerPanel);
+        playMode="Multiplayer";
+        client=new Client(anotherPlayerPanel,rubbishLines);
         client.go();
         play();
     }
@@ -248,8 +250,9 @@ public class Tetris {
         mainPanel.repaint();
         nextPanel.repaint();
         holdPanel.repaint();
-        if(playingType.equals("Multiplayer")){
-            client.writer.println(mainPanel.toString());
+        if(playMode.equals("Multiplayer")){
+            client.writer.println(mainPanel.toString()+(board.rubbishLines>=10?board.rubbishLines:"0"+board.rubbishLines));
+            board.rubbishLines=0;
             client.writer.flush();
         }
     }
@@ -263,6 +266,7 @@ public class Tetris {
         if(next.size()<=nextCount){
             creatBlocks();
         }
+        increaseRubbishLines();
         x=x0;
         y=y0;
         holdCount=0;
@@ -272,7 +276,24 @@ public class Tetris {
             lose=true;
         }
     }
-    //处理影子
+    //上涨垃圾行
+    private void increaseRubbishLines() {
+        if(!rubbishLines.isEmpty()){
+            int count=(int)rubbishLines.get(0);
+            rubbishLines.remove(0);
+            Random rand=new Random();
+            int r=rand.nextInt(10);
+            for(int i=0;i<count;++i){
+                board.increaseRubbishLines(r);
+                int temp=rand.nextInt(10);
+                if(temp<=3){
+                    r=rand.nextInt(10);
+                }
+            }
+        }
+    }
+
+    // 处理影子
     private void shadow(){
         shadow_y=y;
         while(board.canBePutted(nowBlock, x, shadow_y+1, index)){
@@ -311,7 +332,7 @@ public class Tetris {
         frame.add(holdPanel);
         frame.add(mainPanel);
         frame.add(nextPanel);
-        if(playingType.equals("Multiplayer")){
+        if(playMode.equals("Multiplayer")){
             frame.add(anotherPlayerPanel);
         }
         frame.add(borderPanel0);

@@ -41,6 +41,9 @@ public class MainPanel extends JPanel{
                     case 7:
                         g.setColor(Color.decode(ColorsOfBlocks.color_T));
                         break;
+                    case 8:
+                        g.setColor(Color.decode(ColorsOfBlocks.color_Rubbish));
+                        break;
                     case 0:
                         g.setColor(Color.BLACK);
                         break;

@@ -149,4 +149,15 @@ public class Board {
         isTSpinMini=false;
         decreaseLineCount=0;
     }
+    //上涨一行垃圾
+	public void increaseRubbishLines(int index) {
+        for(int y=0;y<43;++y){
+            for(int x=0;x<10;++x){
+                board[x][y]=board[x][y+1];
+            }
+        }
+        for(int x=0;x<10;++x){
+            board[x][43]=(x==index?0:8);
+        }
+	}
 }

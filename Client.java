@@ -1,13 +1,16 @@
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 public class Client {
     BufferedReader reader;
     PrintWriter writer;
     Socket sock;
     AnotherPlayerPanel anotherPlayerPanel;
+    ArrayList<Integer> rubbishLines;
 
-    Client(AnotherPlayerPanel panel){
+    Client(AnotherPlayerPanel panel,ArrayList<Integer> list){
         anotherPlayerPanel=panel;
+        rubbishLines=list;
     }
     public void go(){
         setUpNetworking();
@@ -34,6 +37,11 @@ public class Client {
                 while((message=reader.readLine())!=null){
                     anotherPlayerPanel.setBoard(message);
                     anotherPlayerPanel.repaint();
+                    int l=message.length();
+                    int rubblisLine=(message.charAt(l-2)-'0')*10+message.charAt(l-1)-'0';
+                    if(rubblisLine!=0){
+                        rubbishLines.add(rubblisLine);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
