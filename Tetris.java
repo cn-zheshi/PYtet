@@ -202,6 +202,10 @@ public class Tetris {
     }
     //开始游戏,唯一对外接口
     public void play(){
+        if(playMode.equals("Multiplayer")){
+            client=new Client(anotherPlayerPanel,rubbishLines);
+            client.go();
+        }
         setGUI();
         while(!lose){
             if(dropBlockTimer>=interval){
@@ -228,13 +232,6 @@ public class Tetris {
                 Thread.sleep((long)(1000/60));
             }catch(Exception e){}
         }
-    }
-    //多人游戏
-    public void playMulti(){
-        playMode="Multiplayer";
-        client=new Client(anotherPlayerPanel,rubbishLines);
-        client.go();
-        play();
     }
     //画图函数
     private void paintChanges(){
@@ -277,7 +274,7 @@ public class Tetris {
         if(next.size()<=nextCount){
             creatBlocks();
         }
-        if(board.ren<0){
+        if(board.ren<0&&playMode.equals("Multiplayer")){
             increaseRubbishLines();
         }
         x=x0;
@@ -435,6 +432,6 @@ public class Tetris {
         isTSpinMini=false;
     }
     public static void main(String[] args){
-        new Tetris().playMulti();
+        new Tetris().play();
     }
 }
