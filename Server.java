@@ -4,6 +4,7 @@ import java.util.*;
 
 public class Server{
     HashMap map;
+    int count=0;
     public class ClientHandler implements Runnable{
         BufferedReader reader;
         Socket sock;
@@ -47,7 +48,12 @@ public class Server{
 
                 Thread t=new Thread(new ClientHandler(clientSocket));
                 t.start();
-                System.out.println("got a connection");         
+                System.out.println("got a connection");
+                ++count;
+                if(count>=2){
+                    tellOthers("Another Player", 3000);
+                    break;
+                }  
             }
         } catch (Exception e) {
             e.printStackTrace();
