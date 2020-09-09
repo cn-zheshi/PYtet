@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+
 public class Client {
     BufferedReader reader;
     PrintWriter writer;
@@ -8,13 +9,22 @@ public class Client {
     AnotherPlayerPanel anotherPlayerPanel;
     ArrayList<Integer> rubbishLines;
 
-    Client(AnotherPlayerPanel panel,ArrayList<Integer> list){
-        anotherPlayerPanel=panel;
-        rubbishLines=list;
+    Client(AnotherPlayerPanel panel, ArrayList<Integer> list) {
+        anotherPlayerPanel = panel;
+        rubbishLines = list;
     }
-    public void go(){
+
+    public void go() {
         setUpNetworking();
-        Thread readerThread=new Thread(new IncomingReader());
+        Thread readerThread = new Thread(new IncomingReader());
+        Thread beforePlaying=new Thread(new BeforePlaying());
+        beforePlaying.start();
+        try {
+            beforePlaying.join(0);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         readerThread.start();
     }
 
@@ -34,7 +44,7 @@ public class Client {
         public void run(){
             String message;
             try {
-                while((message=reader.readLine())!=null){
+                while(((message=reader.readLine())!=null)){
                     anotherPlayerPanel.setBoard(message);
                     anotherPlayerPanel.repaint();
                     int l=message.length();
@@ -44,6 +54,23 @@ public class Client {
                     }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public class BeforePlaying implements Runnable{
+        public void run(){
+            String message;
+            try{
+                while((message=reader.readLine())!=null){
+                    if(message.equals("Another Player")){
+                        System.out.println(message);
+                        break;
+                    }
+                }
+            }
+            catch(Exception e){
                 e.printStackTrace();
             }
         }

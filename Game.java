@@ -23,9 +23,13 @@ public class Game {
         frame.setSize(420, 440);
         frame.setResizable(false);
         frame.setVisible(true);
-        while(frame.isEnabled()){
-            //我也不知道为啥注释掉下面这行代码就不能用，但是现在是能用的
-            System.out.println("not play");
+        try{
+            while(frame.isEnabled()){
+                //我也不知道为啥注释掉下面这行代码就不能用，但是现在是能用的
+                Thread.sleep(1);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
         System.out.println("play");
         t.play();
