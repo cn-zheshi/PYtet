@@ -8,6 +8,7 @@ public class Client {
     Socket sock;
     AnotherPlayerPanel anotherPlayerPanel;
     ArrayList<Integer> rubbishLines;
+    boolean lose=false;
 
     Client(AnotherPlayerPanel panel, ArrayList<Integer> list) {
         anotherPlayerPanel = panel;
@@ -44,7 +45,11 @@ public class Client {
         public void run(){
             String message;
             try {
-                while(((message=reader.readLine())!=null)){
+                while(((message=reader.readLine())!=null)&&!lose){
+                    if(message.equals("Lose")){
+                        lose=true;
+                        break;
+                    }
                     anotherPlayerPanel.setBoard(message);
                     anotherPlayerPanel.repaint();
                     int l=message.length();

@@ -122,56 +122,57 @@ public class Tetris {
 
         public void keyPressed(KeyEvent e) {
             // TODO Auto-generated method stub
-            int[][] temp;
-            switch(e.getKeyCode()){
-                case KeyEvent.VK_LEFT:
-                    if(nowBlock.equals(Blocks.I)){
-                        temp=SRS.iBlock[index][(index+3)%4];
-                    }
-                    else{
-                        temp=SRS.otherBlocks[index][(index+3)%4];
-                    }
-                    for(int i=0;i<5;++i){
-                        if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+3)%4)){
-                            if(nowBlock.equals(Blocks.T)){
-                                isTSpinMini=isTSpinMini(i,true);
-                                if(!isTSpinMini){
-                                    isTSpin=isTSpin(i,true);
-                                }
-                            }
-                            index=(index+3)%4;
-                            x+=temp[i][0];
-                            y+=temp[i][1];
-                            paintChanges();
-                            break;
+            if(!lose){
+                int[][] temp;
+                switch(e.getKeyCode()){
+                    case KeyEvent.VK_LEFT:
+                        if(nowBlock.equals(Blocks.I)){
+                            temp=SRS.iBlock[index][(index+3)%4];
                         }
-                    }
-                break;
-                case KeyEvent.VK_RIGHT:
-                    if(nowBlock.equals(Blocks.I)){
-                        temp=SRS.iBlock[index][(index+1)%4];
-                    }
-                    else{
-                        temp=SRS.otherBlocks[index][(index+1)%4];
-                    }
-                    for(int i=0;i<5;++i){
-                        if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+1)%4)){
-                            if(nowBlock.equals(Blocks.T)){
-                                isTSpinMini=isTSpinMini(i,false);
-                                if(!isTSpinMini){
-                                    isTSpin=isTSpin(i,false);
-                                }
-                            }
-                            index=(index+1)%4;
-                            x+=temp[i][0];
-                            y+=temp[i][1];
-                            paintChanges();
-                            break;
+                        else{
+                            temp=SRS.otherBlocks[index][(index+3)%4];
                         }
-                    }
-                break;
+                        for(int i=0;i<5;++i){
+                            if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+3)%4)){
+                                if(nowBlock.equals(Blocks.T)){
+                                    isTSpinMini=isTSpinMini(i,true);
+                                    if(!isTSpinMini){
+                                        isTSpin=isTSpin(i,true);
+                                    }
+                                }
+                                index=(index+3)%4;
+                                x+=temp[i][0];
+                                y+=temp[i][1];
+                                paintChanges();
+                                break;
+                            }
+                        }
+                    break;
+                    case KeyEvent.VK_RIGHT:
+                        if(nowBlock.equals(Blocks.I)){
+                            temp=SRS.iBlock[index][(index+1)%4];
+                        }
+                        else{
+                            temp=SRS.otherBlocks[index][(index+1)%4];
+                        }
+                        for(int i=0;i<5;++i){
+                            if(board.canBePutted(nowBlock,x+temp[i][0],y+temp[i][1],(index+1)%4)){
+                                if(nowBlock.equals(Blocks.T)){
+                                    isTSpinMini=isTSpinMini(i,false);
+                                    if(!isTSpinMini){
+                                        isTSpin=isTSpin(i,false);
+                                    }
+                                }
+                                index=(index+1)%4;
+                                x+=temp[i][0];
+                                y+=temp[i][1];
+                                paintChanges();
+                                break;
+                            }
+                        }
+                    break;
+                }
             }
-
         }
 
         public void keyReleased(KeyEvent e) {
@@ -208,6 +209,11 @@ public class Tetris {
         }
         setGUI();
         while(!lose){
+            if(playMode.equals("Multiplayer")){
+                if(client.lose){
+                    break;
+                }
+            }
             if(dropBlockTimer>=interval){
                 dropBlockTimer=0;
                 mainPart();
@@ -231,6 +237,13 @@ public class Tetris {
             try{
                 Thread.sleep((long)(1000/60));
             }catch(Exception e){}
+        }
+        if(playMode.equals("Multiplayer")){
+            lose=true;
+            if(!client.lose){
+                client.writer.println("Lose");
+                client.writer.flush();
+            }
         }
     }
     //画图函数
