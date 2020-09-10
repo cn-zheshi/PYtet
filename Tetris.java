@@ -12,13 +12,17 @@ public class Tetris {
     int x,y,index;//xy坐标，index代表方向
     int shadow_y;//影子y坐标
     long softDropTime;//按压时间
+    long moveLeftTime;
+    long moveRightTime;
+    int ARR=9;//Auto Repeat Rate 8表示0.15s,成正比
+    int DAS=30;//Delayed Auto Shift 30表示0.5s,成正比
+    int interval=60; //下落间隔，60表示1s,成正比
     int dropBlockTimer;//落块计时器
     int lockBlockTimer;//锁定计时器
     boolean lose;
     int nextCount=5;//能看多少个next
     int holdCount=0;//一个块被放下前只能hold一次
     int x0=3,y0=23;//初始xy坐标
-    int interval=60; 
     JFrame frame=new JFrame("Tetris");
     MoveHandler kbHandler=new MoveHandler();
     SpinHandler spHandler=new SpinHandler();
@@ -46,35 +50,31 @@ public class Tetris {
             if(!lose){
                 switch(e.getKeyCode()){
                     case KeyEvent.VK_A:
-                        if(board.canBePutted(nowBlock, x-1, y, index)){
-                            --x;
-                            resetTSpin();
-                            paintChanges();
+                        if(moveLeftTime==0&&moveRightTime==0){
+                            ++moveLeftTime;
                         }
-                    break;
+                        break;
                     case KeyEvent.VK_D:
-                        if(board.canBePutted(nowBlock, x+1, y, index)){
-                            ++x;
-                            resetTSpin();
-                            paintChanges();
+                        if(moveLeftTime==0&&moveRightTime==0){
+                            ++moveRightTime;
                         }
-                    break;
+                        break;
                     case KeyEvent.VK_W:
                         y=shadow_y;
                         changeBlock();
                         paintChanges();
-                    break;
+                        break;
                     case KeyEvent.VK_S:
                         if(softDropTime==0){
                             ++softDropTime;
                         }
-                    break;
+                        break;
                     case KeyEvent.VK_R:
                         if(playMode.equals("Single")){
                             reset();
                             paintChanges();
                         }
-                    break;
+                        break;
                     case KeyEvent.VK_SHIFT:
                         if(holdCount==0){
                             if(holdBlock==null){
@@ -96,7 +96,7 @@ public class Tetris {
                             ++holdCount;
                             paintChanges();
                         }
-                    break;
+                        break;
                 }
             }
             else if(e.getKeyCode()==KeyEvent.VK_R){
@@ -107,6 +107,17 @@ public class Tetris {
 
         public void keyReleased(KeyEvent e) {
             // TODO Auto-generated method stub
+            switch(e.getKeyCode()){
+                case KeyEvent.VK_A:
+                    moveLeftTime=0;
+                    break;
+                case KeyEvent.VK_D:
+                    moveRightTime=0;
+                    break;
+                case KeyEvent.VK_S:
+                    softDropTime=0;
+                    break;
+            }
             if(e.getKeyCode()==KeyEvent.VK_S){
                 softDropTime=0;
             }
@@ -114,7 +125,6 @@ public class Tetris {
         }
     }
     private class SpinHandler implements KeyListener{
-
         public void keyTyped(KeyEvent e) {
             // TODO Auto-generated method stub
 
@@ -147,7 +157,7 @@ public class Tetris {
                                 break;
                             }
                         }
-                    break;
+                        break;
                     case KeyEvent.VK_RIGHT:
                         if(nowBlock.equals(Blocks.I)){
                             temp=SRS.iBlock[index][(index+1)%4];
@@ -170,7 +180,7 @@ public class Tetris {
                                 break;
                             }
                         }
-                    break;
+                        break;
                 }
             }
         }
@@ -214,12 +224,28 @@ public class Tetris {
                     break;
                 }
             }
+            if(moveLeftTime!=0){
+                if(board.canBePutted(nowBlock, x-1, y, index)&&(moveLeftTime-1)%ARR==0&&(moveLeftTime-1>=DAS||moveLeftTime==1)){
+                    --x;
+                    resetTSpin();
+                    paintChanges();
+                }
+                ++moveLeftTime;
+            }
+            if(moveRightTime!=0){
+                if((board.canBePutted(nowBlock, x+1, y, index))&&(moveRightTime-1)%ARR==0&&(moveRightTime-1>=DAS||moveRightTime==1)){
+                    ++x;
+                    resetTSpin();
+                    paintChanges();
+                }
+                ++moveRightTime;
+            }
             if(dropBlockTimer>=interval){
                 dropBlockTimer=0;
                 mainPart();
             }
             if(softDropTime!=0){
-                if((softDropTime-1)%6==0&&softDropTime!=0){
+                if((softDropTime-1)%ARR==0){
                     dropBlockTimer=0;
                     mainPart();
                 }
@@ -331,6 +357,7 @@ public class Tetris {
         }
         else{
             if(lockBlockTimer*1000/60>=lockTime){
+                lockBlockTimer=0;
                 changeBlock();
             }
         }
@@ -384,6 +411,8 @@ public class Tetris {
         index=0;
         shadow();
         softDropTime=0;
+        moveLeftTime=0;
+        moveRightTime=0;
         dropBlockTimer=0;
         lockBlockTimer=0;
         lose=false;
