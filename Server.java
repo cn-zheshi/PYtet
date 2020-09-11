@@ -75,20 +75,6 @@ public class Server{
         }
     }
 
-    public void tellOthers(String message,int port){
-        Set<Integer> set=map.keySet();
-        for(Integer i:set){
-            try {
-                if(i!=port){
-                    PrintWriter writer=(PrintWriter)map.get(i);
-                    writer.println(message);
-                    writer.flush();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
     public void tellAnother(String message,int port){
         try {
             PrintWriter writer=map.get(enemyMap.get(port));
