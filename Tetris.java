@@ -14,7 +14,7 @@ public class Tetris {
     long softDropTime;//按压时间
     long moveLeftTime;
     long moveRightTime;
-    int ARR=9;//Auto Repeat Rate 8表示0.15s,成正比
+    int ARR=9;//Auto Repeat Rate 9表示0.15s,成正比
     int DAS=30;//Delayed Auto Shift 30表示0.5s,成正比
     int interval=60; //下落间隔，60表示1s,成正比
     int dropBlockTimer;//落块计时器
@@ -33,6 +33,7 @@ public class Tetris {
     int lockTime=1000;//落下时的锁定时间
     boolean isTSpin;//是不是T-Spin
     boolean isTSpinMini;
+    boolean pause;
     String playMode="Single";//游戏模式
     ArrayList<Integer> rubbishLines;
     Client client;
@@ -116,6 +117,11 @@ public class Tetris {
                     break;
                 case KeyEvent.VK_S:
                     softDropTime=0;
+                    break;
+                case KeyEvent.VK_P:
+                    if(playMode.equals("Single")){
+                        pause=!pause;
+                    }
                     break;
             }
             if(e.getKeyCode()==KeyEvent.VK_S){
@@ -219,6 +225,12 @@ public class Tetris {
         }
         setGUI();
         while(!lose){
+            if(pause){
+                try{
+                    Thread.sleep((long)(1000/60));
+                }catch(Exception e){}
+                continue;
+            }
             if(playMode.equals("Multiplayer")){
                 if(client.lose){
                     break;
@@ -416,6 +428,7 @@ public class Tetris {
         dropBlockTimer=0;
         lockBlockTimer=0;
         lose=false;
+        pause=false;
         resetTSpin();
     }
     //是不是T-Spin或T-SpinMini
