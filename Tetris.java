@@ -100,7 +100,7 @@ public class Tetris {
                         break;
                 }
             }
-            else if(e.getKeyCode()==KeyEvent.VK_R){
+            else if(e.getKeyCode()==KeyEvent.VK_R&&playMode.equals("Single")){
                 reset();
                 paintChanges();
             }
@@ -224,7 +224,18 @@ public class Tetris {
             client.go();
         }
         setGUI();
-        while(!lose){
+        while(true){
+            if(lose){
+                if(playMode.equals("Single")){
+                    try{
+                        Thread.sleep((long)(1000/60));
+                    }catch(Exception e){}
+                    continue;
+                }
+                else if(playMode.equals("Multiplayer")){
+                    break;
+                }
+            }
             if(pause){
                 try{
                     Thread.sleep((long)(1000/60));
