@@ -28,11 +28,15 @@ public class Server{
                     tellAnother(message,sock.getPort());
                 }
             } catch (Exception e) {
-                tellAnother("Lose", sock.getPort());
+                if(enemyMap.containsKey(sock.getPort())){
+                    tellAnother("Lose", sock.getPort());
+                    map.remove(enemyMap.get(sock.getPort()));
+                    enemyMap.remove(enemyMap.get(sock.getPort()));
+                    --count;
+                }
                 map.remove(sock.getPort());
-                map.remove(enemyMap.get(sock.getPort()));
-                enemyMap.remove(enemyMap.get(sock.getPort()));
                 enemyMap.remove(sock.getPort());
+                --count;
                 e.printStackTrace();
             }
         }
@@ -68,7 +72,7 @@ public class Server{
                     }
                     tellAnother("Another Player", enemyMap.get(clientSocket.getPort()));
                     tellAnother("Another Player", clientSocket.getPort());
-                }  
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
