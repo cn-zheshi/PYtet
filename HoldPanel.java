@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class HoldPanel extends JPanel{
+    private static final long serialVersionUID = 1L;
     Blocks block;
     HoldPanel(Blocks b){
         block=b;

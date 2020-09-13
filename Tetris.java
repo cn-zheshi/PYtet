@@ -6,7 +6,7 @@ import java.awt.event.*;
 
 public class Tetris {
     Board board;//面板
-    ArrayList next;//next块的序列
+    ArrayList<Blocks> next;//next块的序列
     Blocks nowBlock;//当前块
     Blocks holdBlock;//hold块
     int x,y,index;//xy坐标，index代表方向
@@ -47,7 +47,6 @@ public class Tetris {
         public void keyTyped(KeyEvent e) {}
 
         public void keyPressed(KeyEvent e) {
-            // TODO Auto-generated method stub
             if(!lose){
                 switch(e.getKeyCode()){
                     case KeyEvent.VK_A:
@@ -107,7 +106,6 @@ public class Tetris {
         }
 
         public void keyReleased(KeyEvent e) {
-            // TODO Auto-generated method stub
             switch(e.getKeyCode()){
                 case KeyEvent.VK_A:
                     moveLeftTime=0;
@@ -124,20 +122,12 @@ public class Tetris {
                     }
                     break;
             }
-            if(e.getKeyCode()==KeyEvent.VK_S){
-                softDropTime=0;
-            }
-
         }
     }
     private class SpinHandler implements KeyListener{
-        public void keyTyped(KeyEvent e) {
-            // TODO Auto-generated method stub
-
-        }
+        public void keyTyped(KeyEvent e) {}
 
         public void keyPressed(KeyEvent e) {
-            // TODO Auto-generated method stub
             if(!lose){
                 int[][] temp;
                 switch(e.getKeyCode()){
@@ -191,11 +181,7 @@ public class Tetris {
             }
         }
 
-        public void keyReleased(KeyEvent e) {
-            // TODO Auto-generated method stub
-
-        }
-        
+        public void keyReleased(KeyEvent e) {}
     }
     //生成7bag的块
     private void creatBlocks(){

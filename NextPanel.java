@@ -3,9 +3,10 @@ import java.awt.*;
 import java.util.*;
 
 public class NextPanel extends JPanel{
-    ArrayList next;
+    private static final long serialVersionUID = 1L;
+    ArrayList<Blocks> next;
     int nextCount;
-    NextPanel(ArrayList arrayList,int count){
+    NextPanel(ArrayList<Blocks> arrayList,int count){
         next=arrayList;
         nextCount=count;
     }

@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainPanel extends JPanel{
+    private static final long serialVersionUID = 1L;
     Board board;
     Blocks nowBlock;
     int block_x,block_y;
