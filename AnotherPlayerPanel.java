@@ -2,7 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class AnotherPlayerPanel  extends JPanel{
-    Board board=new Board();
+    private static final long serialVersionUID = 1L;
+    Board board = new Board();
     public void paintComponent(Graphics g){
         for(int x=0;x<10;++x){
             for(int y=24;y<44;++y){
