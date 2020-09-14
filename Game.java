@@ -38,7 +38,6 @@ public class Game {
     public class SoloButton implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             t.playMode="Single";
             frame.setVisible(false);
             frame.setEnabled(false);
@@ -48,10 +47,16 @@ public class Game {
     public class MultiButton implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             t.playMode="Multiplayer";
             frame.setVisible(false);
             frame.setEnabled(false);
+        }
+    }
+    //设置按钮（以后会写的）
+    public class SettingButton implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e){
+            //由于太菜了还没想好怎么实现，先放着吧，大致思路是写入文件再由Tetris类去读取
         }
     }
 }
