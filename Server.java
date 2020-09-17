@@ -34,9 +34,11 @@ public class Server{
                     enemyMap.remove(enemyMap.get(sock.getPort()));
                     --count;
                 }
-                map.remove(sock.getPort());
-                enemyMap.remove(sock.getPort());
-                --count;
+                if(map.containsKey(sock.getPort())){
+                    map.remove(sock.getPort());
+                    enemyMap.remove(sock.getPort());
+                    --count;
+                }
                 e.printStackTrace();
             }
         }
