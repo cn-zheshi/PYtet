@@ -51,7 +51,7 @@ public class AnotherPlayerPanel  extends JPanel{
     public void setBoard(String str){
         String[] arr=str.split(",");
         for(int i=0;i<arr.length;++i){
-            if(arr[i].length()>=10){
+            if(arr[i].length()==10){
                 for(int j=0;j<arr[i].length();++j){
                     board.board[j][i+24]=(arr[i].charAt(j)-'0');
                 }
