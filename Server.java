@@ -66,7 +66,7 @@ public class Server{
                 if(count%2==0){
                     Set<Integer> set=map.keySet();
                     for(Integer i:set){
-                        if(!enemyMap.keySet().contains(i)){
+                        if(!enemyMap.keySet().contains(i)&&i!=clientSocket.getPort()){
                             enemyMap.put(i,clientSocket.getPort());
                             enemyMap.put(clientSocket.getPort(),i);
                             break;
