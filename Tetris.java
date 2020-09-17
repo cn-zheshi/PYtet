@@ -300,6 +300,7 @@ public class Tetris {
             while(rubbishLine!=0&&!rubbishLines.isEmpty()){
                 if(rubbishLine>rubbishLines.get(0)){
                     rubbishLine-=rubbishLines.get(0);
+                    rubbishLines.remove(0);
                 }
                 else{
                     int temp=rubbishLines.get(0);
