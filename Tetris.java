@@ -14,9 +14,9 @@ public class Tetris {
     long softDropTime;//按压时间
     long moveLeftTime;
     long moveRightTime;
-    int ARR=9;//Auto Repeat Rate 9表示0.15s,成正比
-    int DAS=30;//Delayed Auto Shift 30表示0.5s,成正比
-    int interval=60; //下落间隔，60表示1s,成正比
+    int ARR=2;//Auto Repeat Rate
+    int DAS=10;//Delayed Auto Shift
+    int interval=60; //下落间隔Arr Das和这个的单位都是帧（默认60帧）
     int dropBlockTimer;//落块计时器
     int lockBlockTimer;//锁定计时器
     boolean lose;
